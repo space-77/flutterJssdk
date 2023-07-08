@@ -1,143 +1,104 @@
-type CallBackRes = {
-  msg: string;
-  data: any;
-  code: 0 | -1;
-  sessionId: number;
-};
-
 type MethodsName =
-  | "deviceInfo"
-  | "storageValue"
-  | "acquireValue"
-  | "clearValue"
-  | "qrcode"
-  | "selectPhoto"
-  | "openCamera"
-  | "recordAudio"
-  | "recordAudio";
+  | 'deviceInfo'
+  | 'storageValue'
+  | 'acquireValue'
+  | 'clearValue'
+  | 'qrcode'
+  | 'selectPhoto'
+  | 'openCamera'
+  | 'recordAudio'
+  | 'recordAudio'
 
-type TOnReadyFuns = { resolve: Function; reject: Function; time: number };
+type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
+type TEventList = Omit<TOnReadyFuns, 'time'> & { timer: number }
 
 type MaxRockyEvent = {
-  code: number;
-  data: string;
-  msg: string;
-  sessionid: number;
-};
+  code: number
+  data: string
+  msg: string
+  sessionId: number
+}
 
 class Jssdk {
-  isNative = false;
-  protected initDone = false;
-  protected static sessionid = 0;
-  protected static initTimer?: number;
-  protected timeout = 1000 * 5;
-  protected eventList = new Map<number, [Function, Function, number]>();
-  protected onReadyFuns: TOnReadyFuns[] = [];
+  protected native = false
+  protected initDone = false
+  protected static sessionId = 0
+  protected initTimer?: number
+  protected timeout = 1000 * 5
+  protected eventList = new Map<number, TEventList>()
+  protected onReadyFuns: TOnReadyFuns[] = []
+
+  get isNative() {
+    return this.native
+  }
 
   constructor() {
-    this.init();
-    this.addEventListener();
+    this.init()
+    this.addEventListener()
   }
 
   protected init() {
-    clearTimeout(Jssdk.initTimer);
-
-    window.onMaxrockyReady = () => {
-      this.isNative = true;
-      this.initDone = true;
+    window.addEventListener('onMaxrockyReady', () => {
+      clearTimeout(this.initTimer)
+      this.native = true
+      this.initDone = true
       this.onReadyFuns.forEach(({ resolve, time }) => {
-        resolve(Date.now() - time);
-      });
-    };
+        resolve(Date.now() - time)
+      })
+    })
 
-    setTimeout(() => {
-      this.isNative = false;
+    this.initTimer = setTimeout(() => {
+      this.native = false
       this.onReadyFuns.forEach(({ reject }) => {
-        this.initDone = true;
-        reject("is not navtive");
-      });
-    }, 800);
+        this.initDone = true
+        reject('is not navtive')
+      })
+    }, 800)
   }
 
   protected addEventListener() {
-    // const ev = document.createEvent("CustomEvent");
-    // ev.initCustomEvent("bridgeCallBack", false, false, args);
-    // window
-
-    // const ev = new Event("BridgeCallBack");
-    // window.dispatchEvent(ev);
-    window.addEventListener("BridgeCallBack", (res: any) => {
-      const { sessionid, code, msg, data } = res.detail as MaxRockyEvent;
-      const eventInfo = this.eventList.get(sessionid);
-
-      console.log(eventInfo);
-
-      if (!eventInfo) return;
-
-      console.log({ sessionid, code, msg, data });
-
-      const [resolve, reject, timer] = eventInfo;
-      code === 0 ? resolve(data) : reject(msg);
-      clearTimeout(timer);
-      this.eventList.delete(sessionid);
-    });
+    window.addEventListener('onBridgeCallBack', ({ detail }: any) => {
+      const { sessionId, code, msg, data } = detail as MaxRockyEvent
+      const eventInfo = this.eventList.get(sessionId)
+      if (!eventInfo) return
+      const { resolve, reject, timer } = eventInfo
+      clearTimeout(timer)
+      this.eventList.delete(sessionId)
+      code === 0 ? resolve(data) : reject(msg)
+    })
   }
 
   protected getSessionid() {
-    if (Jssdk.sessionid >= 999999) Jssdk.sessionid = 0;
-    Jssdk.sessionid++;
-    return Jssdk.sessionid;
+    if (Jssdk.sessionId >= 999999) Jssdk.sessionId = 0
+    Jssdk.sessionId++
+    return Jssdk.sessionId
   }
 
-  // protected jsBridgeCallBack(_: string, response: string) {
-  //   try {
-  //     // const [_, response] = res as string[]
-  //     const { data, code, msg, sessionId } = JSON.parse(
-  //       response
-  //     ) as CallBackRes;
-  //     const promiseFun = this.eventList.get(sessionId);
-  //     if (!promiseFun) return;
-  //     const [resolve, reject, timer] = promiseFun;
-  //     code === 0 ? resolve(data) : reject(msg);
-  //     clearTimeout(timer);
-  //     this.eventList.delete(sessionId);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-
-  protected callHandler<T = any>(
-    methodName: MethodsName,
-    params: string | number = ""
-  ) {
+  protected callHandler<T = any>(methodName: MethodsName, params: string | number = '') {
     return new Promise<T>((resolve, reject) => {
-      const sessionId = this.getSessionid();
+      const sessionId = this.getSessionid()
       const timer = setTimeout(() => {
-        reject("timeout");
-        this.eventList.delete(sessionId);
-      }, this.timeout);
-      this.eventList.set(sessionId, [resolve, reject, timer]);
+        reject('timeout')
+        this.eventList.delete(sessionId)
+      }, this.timeout)
+      this.eventList.set(sessionId, { resolve, reject, timer })
+
+      console.log('this.eventList.size', this.eventList.size)
 
       // 通知原生事件
-      window.maxrocky.postMessage(
-        JSON.stringify({ sessionId, methodName, params })
-      );
-    });
+      window.maxrocky.postMessage(JSON.stringify({ sessionId, methodName, params }))
+    })
   }
 
   onReady() {
     return new Promise<number>((resolve, reject) => {
       if (this.initDone) {
-        resolve(0);
-        return;
+        resolve(0)
+        return
       }
-      this.onReadyFuns.push({ resolve, reject, time: Date.now() });
-    });
+      this.onReadyFuns.push({ resolve, reject, time: Date.now() })
+    })
   }
-
-  // on(funInfo: TMethod) {
-  //   this.onMethods.push(funInfo);
-  // }
 
   /**
    * @param {String} key
@@ -145,15 +106,12 @@ class Jssdk {
    * @description 设置LocalStroge
    */
   onSetLocalStorage(key: string, value: any) {
-    if (this.isNative) {
-      return this.callHandler<void>(
-        "storageValue",
-        JSON.stringify({ key, value })
-      );
+    if (this.native) {
+      return this.callHandler<void>('storageValue', JSON.stringify({ key, value }))
     }
-    return new Promise<void>((resolve) => {
-      resolve(localStorage.setItem(key, value));
-    });
+    return new Promise<void>(resolve => {
+      resolve(localStorage.setItem(key, value))
+    })
   }
 
   /**
@@ -161,12 +119,12 @@ class Jssdk {
    * @description 获取LocalStroge
    */
   onGetLocalStorage(key: string) {
-    if (this.isNative) {
-      return this.callHandler<string | null>("acquireValue", key);
+    if (this.native) {
+      return this.callHandler<string | null>('acquireValue', key)
     }
-    return new Promise<string | null>((resolve) => {
-      resolve(localStorage.getItem(key));
-    });
+    return new Promise<string | null>(resolve => {
+      resolve(localStorage.getItem(key))
+    })
   }
 
   /**
@@ -174,121 +132,117 @@ class Jssdk {
    * @description 移除LocalStroge
    */
   onRemoveLocalStorage(key: string) {
-    if (this.isNative) {
-      return this.callHandler("clearValue", key);
+    if (this.native) {
+      return this.callHandler('clearValue', key)
     }
-    return new Promise((resolve) => {
-      resolve(localStorage.removeItem(key));
-    });
+    return new Promise(resolve => {
+      resolve(localStorage.removeItem(key))
+    })
   }
 
   /**
    * @description 清空LocalStroge
    */
   onClearLocalStorage() {
-    if (this.isNative) {
+    if (this.native) {
       return new Promise((_, reject) => {
-        reject("TODO");
-      });
+        reject('TODO')
+      })
     }
-    return new Promise((resolve) => {
-      resolve(localStorage.clear());
-    });
+    return new Promise(resolve => {
+      resolve(localStorage.clear())
+    })
   }
 
   /**
    * @description 扫描二维码
    */
   onQRCodeClick() {
-    if (this.isNative) {
-      return this.callHandler("qrcode");
+    if (this.native) {
+      return this.callHandler('qrcode')
     }
     return new Promise((_, reject) => {
-      reject("");
-    });
+      reject('')
+    })
   }
 
   /**
    * @description 获取图片
    */
   pickerPhoto(count = 1) {
-    if (this.isNative) {
-      return this.callHandler("selectPhoto", JSON.stringify({ count }));
+    if (this.native) {
+      return this.callHandler('selectPhoto', JSON.stringify({ count }))
     }
     return new Promise((_, reject) => {
-      reject();
-    });
+      reject()
+    })
   }
 
   /**
    * @description 拍照
    */
   takePhotos() {
-    if (this.isNative) {
-      return this.callHandler("openCamera");
+    if (this.native) {
+      return this.callHandler('openCamera')
     }
     return new Promise((_, reject) => {
-      reject();
-    });
+      reject()
+    })
   }
 
   /**
    * @description 开始录音
    */
   startRecordAudio(duration = 60) {
-    if (this.isNative) {
-      return this.callHandler("recordAudio", duration);
+    if (this.native) {
+      return this.callHandler('recordAudio', duration)
     }
     return new Promise((_, reject) => {
-      reject();
-    });
+      reject()
+    })
   }
 
   /**
    * @description 获取 ClientId， 华润做消息推送（公司那边肯能是自己推送）
    */
   getClientId() {
-    if (this.isNative) {
+    if (this.native) {
       // TODO 待完成
       return new Promise((_, reject) => {
-        reject("TODO");
-      });
+        reject('TODO')
+      })
     }
     return new Promise((_, reject) => {
-      reject();
-    });
+      reject()
+    })
   }
 
   /**
    * @description 获取设备信息，那个型号，什么系统，可用屏幕、刘海屏
    */
   getDeviceInfo() {
-    console.log(this.isNative);
-    if (this.isNative) {
-      // TODO 待完成
-      return this.callHandler("deviceInfo");
-    }
+    if (this.native) return this.callHandler('deviceInfo')
     return new Promise((_, reject) => {
-      reject();
-    });
+      reject('is not native')
+    })
   }
 
   /**
    * @description 获取网络状态
    */
   getNetworkType() {
-    if (this.isNative) {
+    if (this.native) {
       // TODO 待完成
       return new Promise((_, reject) => {
-        reject("TODO");
-      });
+        reject('TODO')
+      })
     }
-    return new Promise((resolve) => {
-      resolve(navigator.onLine ? "wifi" : "unknown");
-    });
+    return new Promise(resolve => {
+      resolve(navigator.onLine ? 'wifi' : 'unknown')
+    })
   }
 }
 
-const jssdk = new Jssdk();
+const jssdk = new Jssdk()
 
-export default jssdk;
+export default jssdk

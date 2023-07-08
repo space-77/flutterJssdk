@@ -1,17 +1,6 @@
 <script setup lang="ts">
 import HelloWorld from "./components/HelloWorld.vue";
-import jssdk from "./jssdk/index";
-// console.log('jssdk.getClientId');
 
-const init = async () => {
-  try {
-    const res = await jssdk.getDeviceInfo();
-    console.log(res);
-  } catch (error) {
-    console.error(error);
-  }
-};
-init();
 </script>
 
 <template>
