@@ -1,8 +1,10 @@
 type MethodsName =
   | 'deviceInfo'
-  | 'storageValue'
-  | 'acquireValue'
-  | 'clearValue'
+  | 'reload'
+  | 'setLocalStorage'
+  | 'getLocalStorage'
+  | 'removeLocalStroge'
+  | 'clearLocalStroge'
   | 'qrcode'
   | 'selectPhoto'
   | 'openCamera'
@@ -39,7 +41,6 @@ class Jssdk {
 
   protected init() {
     window.addEventListener('onMaxrockyReady', () => {
-      clearTimeout(this.initTimer)
       this.native = true
       this.initDone = true
       this.onReadyFuns.forEach(({ resolve, time }) => {
@@ -47,13 +48,13 @@ class Jssdk {
       })
     })
 
-    this.initTimer = setTimeout(() => {
-      this.native = false
-      this.onReadyFuns.forEach(({ reject }) => {
-        this.initDone = true
-        reject('is not navtive')
-      })
-    }, 800)
+    // this.initTimer = setTimeout(() => {
+    //   this.native = false
+    //   this.onReadyFuns.forEach(({ reject }) => {
+    //     this.initDone = true
+    //     reject('is not navtive')
+    //   })
+    // }, 800)
   }
 
   protected addEventListener() {
@@ -74,7 +75,7 @@ class Jssdk {
     return Jssdk.sessionId
   }
 
-  protected callHandler<T = any>(methodName: MethodsName, params: string | number = '') {
+  protected callHandler<T = any>(methodName: MethodsName, params?: string | number) {
     return new Promise<T>((resolve, reject) => {
       const sessionId = this.getSessionid()
       const timer = setTimeout(() => {
@@ -83,21 +84,31 @@ class Jssdk {
       }, this.timeout)
       this.eventList.set(sessionId, { resolve, reject, timer })
 
-      console.log('this.eventList.size', this.eventList.size)
-
       // 通知原生事件
-      window.maxrocky.postMessage(JSON.stringify({ sessionId, methodName, params }))
+      window.maxrockyJsbridge.postMessage(JSON.stringify({ sessionId, methodName, params }))
     })
   }
 
   onReady() {
+    const time = Date.now()
+    if (!window.maxrockyJsbridge) return Promise.resolve(Date.now() - time)
     return new Promise<number>((resolve, reject) => {
       if (this.initDone) {
         resolve(0)
         return
       }
-      this.onReadyFuns.push({ resolve, reject, time: Date.now() })
+      this.onReadyFuns.push({ resolve, reject, time })
     })
+  }
+
+  reload() {
+    location.reload()
+    // if (this.native) {
+    //   console.log('123');
+    //   return this.callHandler<void>('reload')
+    // } else {
+    //   location.reload()
+    // }
   }
 
   /**
@@ -105,9 +116,9 @@ class Jssdk {
    * @param {String} value
    * @description 设置LocalStroge
    */
-  onSetLocalStorage(key: string, value: any) {
+  setLocalStorage(key: string, value: any) {
     if (this.native) {
-      return this.callHandler<void>('storageValue', JSON.stringify({ key, value }))
+      return this.callHandler<void>('setLocalStorage', JSON.stringify({ key, value }))
     }
     return new Promise<void>(resolve => {
       resolve(localStorage.setItem(key, value))
@@ -118,10 +129,8 @@ class Jssdk {
    * @param {String} key
    * @description 获取LocalStroge
    */
-  onGetLocalStorage(key: string) {
-    if (this.native) {
-      return this.callHandler<string | null>('acquireValue', key)
-    }
+  getLocalStorage(key: string) {
+    if (this.native) return this.callHandler<string | null>('getLocalStorage', key)
     return new Promise<string | null>(resolve => {
       resolve(localStorage.getItem(key))
     })
@@ -131,24 +140,19 @@ class Jssdk {
    * @param {String} key
    * @description 移除LocalStroge
    */
-  onRemoveLocalStorage(key: string) {
-    if (this.native) {
-      return this.callHandler('clearValue', key)
-    }
-    return new Promise(resolve => {
-      resolve(localStorage.removeItem(key))
+  removeLocalStroge(key: string) {
+    if (this.native) return this.callHandler<boolean>('removeLocalStroge', key)
+    return new Promise<boolean>(resolve => {
+      localStorage.removeItem(key)
+      resolve(true)
     })
   }
 
   /**
-   * @description 清空LocalStroge
+   * @description 清除LocalStroge
    */
-  onClearLocalStorage() {
-    if (this.native) {
-      return new Promise((_, reject) => {
-        reject('TODO')
-      })
-    }
+  clearLocalStroge() {
+    if (this.native) return this.callHandler('clearLocalStroge')
     return new Promise(resolve => {
       resolve(localStorage.clear())
     })
