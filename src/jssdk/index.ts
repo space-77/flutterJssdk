@@ -12,7 +12,7 @@ type MethodsName =
   | 'recordAudio'
 
 type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
-type TEventList = Omit<TOnReadyFuns, 'time'> & { timer: number }
+type TEventList = Omit<TOnReadyFuns, 'time'>
 
 type MaxRockyEvent = {
   code: number
@@ -62,8 +62,7 @@ class Jssdk {
       const { sessionId, code, msg, data } = detail as MaxRockyEvent
       const eventInfo = this.eventList.get(sessionId)
       if (!eventInfo) return
-      const { resolve, reject, timer } = eventInfo
-      clearTimeout(timer)
+      const { resolve, reject } = eventInfo
       this.eventList.delete(sessionId)
       code === 0 ? resolve(data) : reject(msg)
     })
@@ -78,11 +77,11 @@ class Jssdk {
   protected callHandler<T = any>(methodName: MethodsName, params?: string | number) {
     return new Promise<T>((resolve, reject) => {
       const sessionId = this.getSessionid()
-      const timer = setTimeout(() => {
-        reject('timeout')
-        this.eventList.delete(sessionId)
-      }, this.timeout)
-      this.eventList.set(sessionId, { resolve, reject, timer })
+      // const timer = setTimeout(() => {
+      //   reject('timeout')
+      //   this.eventList.delete(sessionId)
+      // }, this.timeout)
+      this.eventList.set(sessionId, { resolve, reject })
 
       // 通知原生事件
       window.maxrockyJsbridge.postMessage(JSON.stringify({ sessionId, methodName, params }))
@@ -161,10 +160,8 @@ class Jssdk {
   /**
    * @description 扫描二维码
    */
-  onQRCodeClick() {
-    if (this.native) {
-      return this.callHandler('qrcode')
-    }
+  qrcode() {
+    if (this.native) return this.callHandler<string>('qrcode')
     return new Promise((_, reject) => {
       reject('')
     })

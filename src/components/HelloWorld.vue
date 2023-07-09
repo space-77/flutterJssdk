@@ -50,6 +50,15 @@ async function clearLocalStroge() {
     console.error(error)
   }
 }
+
+async function qrcode() {
+  try {
+    const res = await jssdk.qrcode()
+    console.log(res)
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -60,6 +69,7 @@ async function clearLocalStroge() {
     <button type="button" @click="getLocalStorage">读取数据</button>
     <button type="button" @click="removeLocalStroge">移除数据</button>
     <button type="button" @click="clearLocalStroge">清除数据</button>
+    <button type="button" @click="qrcode">扫码</button>
   </div>
 </template>
 
