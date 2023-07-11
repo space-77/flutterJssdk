@@ -40,7 +40,15 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": {}
+    "rules": {
+      "camelcase": "off",
+      "promise/param-names": "off",
+      "vue/no-parsing-error": "off",
+      "space-before-function-paren": "off",
+      "@typescript-eslint/ban-types": "off",
+      "prefer-promise-reject-errors": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   },
   "browserslist": [
     "> 1%",

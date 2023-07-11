@@ -3,9 +3,8 @@ export {}
 declare global {
   interface Window {
     isNative: boolean
-
     flutter_inappwebview: {
-      postMessage: (message: string) => void
+      callHandler: (metName: 'postMessage', message: string) => void
     }
   }
 }

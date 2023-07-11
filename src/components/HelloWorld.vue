@@ -4,7 +4,7 @@ import jssdk from '../jssdk/index'
 async function getDeviceInfo() {
   try {
     const res = await jssdk.getDeviceInfo()
-    console.log(res)
+    console.log(JSON.stringify(res))
   } catch (error) {
     console.error(error)
   }
@@ -17,7 +17,7 @@ function reload() {
 async function setLocalStorage() {
   try {
     const res = await jssdk.setLocalStorage('test', JSON.stringify({ data: 'xxx', code: 0 }))
-    console.log(res)
+    console.log(JSON.stringify(res))
   } catch (error) {
     console.error(error)
   }

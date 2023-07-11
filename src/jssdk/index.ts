@@ -1,91 +1,8 @@
-type MethodsName =
-  | 'deviceInfo'
-  | 'reload'
-  | 'setLocalStorage'
-  | 'getLocalStorage'
-  | 'removeLocalStroge'
-  | 'clearLocalStroge'
-  | 'qrcode'
-  | 'selectPhoto'
-  | 'openCamera'
-  | 'recordAudio'
-  | 'recordAudio'
+import JssdkBase from './jssdkBase'
 
-type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
-type TEventList = Omit<TOnReadyFuns, 'time'>
-
-type MaxRockyEvent = {
-  code: number
-  data: string
-  msg: string
-  sessionId: number
-}
-
-class Jssdk {
-  protected native = false
-  protected initDone = false
-  protected static sessionId = 0
-  protected initTimer?: number
-  protected timeout = 1000 * 5
-  protected eventList = new Map<number, TEventList>()
-  protected onReadyFuns: TOnReadyFuns[] = []
-
+class Jssdk extends JssdkBase {
   get isNative() {
     return this.native
-  }
-
-  constructor() {
-    this.init()
-    this.addEventListener()
-  }
-
-  protected init() {
-    window.addEventListener('onMaxrockyReady', () => {
-      this.native = true
-      this.initDone = true
-      this.onReadyFuns.forEach(({ resolve, time }) => {
-        resolve(Date.now() - time)
-      })
-    })
-
-    // this.initTimer = setTimeout(() => {
-    //   this.native = false
-    //   this.onReadyFuns.forEach(({ reject }) => {
-    //     this.initDone = true
-    //     reject('is not navtive')
-    //   })
-    // }, 800)
-  }
-
-  protected addEventListener() {
-    window.addEventListener('onBridgeCallBack', ({ detail }: any) => {
-      const { sessionId, code, msg, data } = detail as MaxRockyEvent
-      const eventInfo = this.eventList.get(sessionId)
-      if (!eventInfo) return
-      const { resolve, reject } = eventInfo
-      this.eventList.delete(sessionId)
-      code === 0 ? resolve(data) : reject(msg)
-    })
-  }
-
-  protected getSessionid() {
-    if (Jssdk.sessionId >= 999999) Jssdk.sessionId = 0
-    Jssdk.sessionId++
-    return Jssdk.sessionId
-  }
-
-  protected callHandler<T = any>(methodName: MethodsName, params?: string | number) {
-    return new Promise<T>((resolve, reject) => {
-      const sessionId = this.getSessionid()
-      // const timer = setTimeout(() => {
-      //   reject('timeout')
-      //   this.eventList.delete(sessionId)
-      // }, this.timeout)
-      this.eventList.set(sessionId, { resolve, reject })
-
-      // 通知原生事件
-      window.flutter_inappwebview.postMessage(JSON.stringify({ sessionId, methodName, params }))
-    })
   }
 
   onReady() {
@@ -93,7 +10,7 @@ class Jssdk {
     if (!window.flutter_inappwebview) return Promise.resolve(Date.now() - time)
     return new Promise<number>((resolve, reject) => {
       if (this.initDone) {
-        resolve(0)
+        resolve(Date.now() - time)
         return
       }
       this.onReadyFuns.push({ resolve, reject, time })
@@ -162,6 +79,7 @@ class Jssdk {
    */
   qrcode() {
     if (this.native) return this.callHandler<string>('qrcode')
+    // eslint-disable-next-line promise/param-names
     return new Promise((_, reject) => {
       reject('')
     })
