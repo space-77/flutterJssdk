@@ -4,7 +4,7 @@ declare global {
   interface Window {
     isNative: boolean
 
-    maxrockyJsbridge: {
+    flutter_inappwebview: {
       postMessage: (message: string) => void
     }
   }

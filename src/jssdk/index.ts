@@ -84,13 +84,13 @@ class Jssdk {
       this.eventList.set(sessionId, { resolve, reject })
 
       // 通知原生事件
-      window.maxrockyJsbridge.postMessage(JSON.stringify({ sessionId, methodName, params }))
+      window.flutter_inappwebview.postMessage(JSON.stringify({ sessionId, methodName, params }))
     })
   }
 
   onReady() {
     const time = Date.now()
-    if (!window.maxrockyJsbridge) return Promise.resolve(Date.now() - time)
+    if (!window.flutter_inappwebview) return Promise.resolve(Date.now() - time)
     return new Promise<number>((resolve, reject) => {
       if (this.initDone) {
         resolve(0)
