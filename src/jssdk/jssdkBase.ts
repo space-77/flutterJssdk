@@ -1,4 +1,5 @@
 type MethodsName =
+  | 'navPop'
   | 'deviceInfo'
   | 'reload'
   | 'setLocalStorage'

@@ -82,6 +82,16 @@ async function openCamera() {
     console.error(error)
   }
 }
+
+async function navPop() {
+  try {
+    const res = await jssdk.navPop()
+    if (!res) return
+    images.value = [res]
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -95,6 +105,7 @@ async function openCamera() {
     <button type="button" @click="qrcode">扫码</button>
     <button type="button" @click="pickerPhoto">获取图片</button>
     <button type="button" @click="openCamera">开打相机</button>
+    <button type="button" @click="navPop">原生返回</button>
   </div>
 
   <div class="image-box" v-if="images.length > 0">

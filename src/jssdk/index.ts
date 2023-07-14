@@ -110,6 +110,16 @@ class Jssdk extends JssdkBase {
   }
 
   /**
+   * @description 原生返回
+   */
+  navPop() {
+    if (this.native) this.callHandler<undefined>('navPop')
+    return new Promise<undefined>((_, reject) => {
+      reject()
+    })
+  }
+
+  /**
    * @description 开始录音
    */
   startRecordAudio(duration = 60) {
