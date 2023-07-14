@@ -1,5 +1,5 @@
 import JssdkBase from './jssdkBase'
-
+import type { Image } from './types'
 class Jssdk extends JssdkBase {
   get isNative() {
     return this.native
@@ -90,9 +90,9 @@ class Jssdk extends JssdkBase {
    */
   pickerPhoto(count = 1) {
     if (this.native) {
-      return this.callHandler('selectPhoto', JSON.stringify({ count }))
+      return this.callHandler<Image[]>('pickerPhoto', JSON.stringify({ count }))
     }
-    return new Promise((_, reject) => {
+    return new Promise<Image[]>((_, reject) => {
       reject()
     })
   }
@@ -100,11 +100,11 @@ class Jssdk extends JssdkBase {
   /**
    * @description 拍照
    */
-  takePhotos() {
+  openCamera() {
     if (this.native) {
-      return this.callHandler('openCamera')
+      return this.callHandler<Image | undefined>('openCamera')
     }
-    return new Promise((_, reject) => {
+    return new Promise<Image | undefined>((_, reject) => {
       reject()
     })
   }

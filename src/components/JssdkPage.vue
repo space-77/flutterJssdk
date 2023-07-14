@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import jssdk from '../jssdk/index'
+import type { Image } from '@/jssdk/types'
+
+const images = ref<Image[]>([])
 
 async function getDeviceInfo() {
   try {
@@ -59,6 +63,25 @@ async function qrcode() {
     console.error(error)
   }
 }
+
+async function pickerPhoto() {
+  try {
+    const res = await jssdk.pickerPhoto()
+    images.value = res
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function openCamera() {
+  try {
+    const res = await jssdk.openCamera()
+    if (!res) return
+    images.value = [res]
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -70,6 +93,13 @@ async function qrcode() {
     <button type="button" @click="removeLocalStroge">移除数据</button>
     <button type="button" @click="clearLocalStroge">清除数据</button>
     <button type="button" @click="qrcode">扫码</button>
+    <button type="button" @click="pickerPhoto">获取图片</button>
+    <button type="button" @click="openCamera">开打相机</button>
+  </div>
+
+  <div class="image-box" v-if="images.length > 0">
+    <button type="button" @click="images = []">清空图片</button>
+    <img v-for="img in images" :key="img.path" :src="img.path" />
   </div>
 </template>
 
@@ -79,13 +109,33 @@ async function qrcode() {
 }
 
 .card {
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  padding: 0 10px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
 }
 .card button {
+  width: calc(50% - 5px);
+  box-sizing: border-box;
   margin-bottom: 10px;
+}
+
+.card button:nth-child(odd) {
+  margin-right: 10px;
 }
 .card button:last-of-type {
   margin-bottom: unset;
+}
+
+.image-box {
+  width: 100%;
+  padding: 20px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.image-box img {
+  width: 100%;
 }
 </style>

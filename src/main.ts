@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import jssdk from './jssdk/index'
+import router from './router'
 
 async function main() {
   try {
@@ -10,7 +11,7 @@ async function main() {
   } catch (error) {
     console.error(error)
   }
-  createApp(App).mount('#app')
+  createApp(App).use(router).mount('#app')
 }
 
 main()

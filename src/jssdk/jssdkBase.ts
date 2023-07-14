@@ -6,7 +6,7 @@ type MethodsName =
   | 'removeLocalStroge'
   | 'clearLocalStroge'
   | 'qrcode'
-  | 'selectPhoto'
+  | 'pickerPhoto'
   | 'openCamera'
   | 'recordAudio'
   | 'recordAudio'
