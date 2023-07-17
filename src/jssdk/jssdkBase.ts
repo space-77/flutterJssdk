@@ -22,6 +22,13 @@ type MaxRockyEvent = {
   sessionId: number
 }
 
+export type JssdkBaseOprion = {
+  onWillPop?: () => boolean
+}
+
+export const webviewName = 'flutter_inappwebview'
+export const maxrockyWebView = window[webviewName]
+
 export default class JssdkBase {
   protected native = false
   protected initDone = false
@@ -32,9 +39,15 @@ export default class JssdkBase {
   protected eventList = new Map<number, TEventList>()
   protected onReadyFuns: TOnReadyFuns[] = []
 
-  constructor() {
+  constructor({ onWillPop }: JssdkBaseOprion = {}) {
+    if (maxrockyWebView.$jssdk) {
+      console.error('jssdk has already been built, please do not repeat the construction')
+      return maxrockyWebView.$jssdk
+    }
+    maxrockyWebView.$jssdk = this
     this.init()
     this.addEventListener()
+    maxrockyWebView.onWillPop = onWillPop?.bind(this)
   }
 
   protected init() {
@@ -73,7 +86,7 @@ export default class JssdkBase {
       this.eventList.set(sessionId, { resolve, reject })
 
       // 通知原生事件
-      window.flutter_inappwebview.callHandler('postMessage', JSON.stringify({ sessionId, methodName, params }))
+      maxrockyWebView?.callHandler('postMessage', JSON.stringify({ sessionId, methodName, params }))
     })
   }
 }

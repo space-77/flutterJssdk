@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import jssdk from '../jssdk/index'
+import jssdk from '@/initJssdk'
 import type { Image } from '@/jssdk/types'
 
 const images = ref<Image[]>([])
@@ -66,7 +66,8 @@ async function qrcode() {
 
 async function pickerPhoto() {
   try {
-    const res = await jssdk.pickerPhoto()
+    const res = await jssdk.pickerPhoto({ maxAssets: 2, themeColor: '#ff0000' })
+    console.log(JSON.stringify(res))
     images.value = res
   } catch (error) {
     console.error(error)

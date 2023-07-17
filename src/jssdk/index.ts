@@ -1,13 +1,13 @@
-import JssdkBase from './jssdkBase'
-import type { Image } from './types'
-class Jssdk extends JssdkBase {
+import JssdkBase, { maxrockyWebView } from './jssdkBase'
+import type { CameraPhotoParams, Image, PickerPhotoParams } from './types'
+export default class Jssdk extends JssdkBase {
   get isNative() {
     return this.native
   }
 
   onReady() {
     const time = Date.now()
-    if (!window.flutter_inappwebview) return Promise.resolve(Date.now() - time)
+    if (!maxrockyWebView) return Promise.resolve(Date.now() - time)
     return new Promise<number>((resolve, reject) => {
       if (this.initDone) {
         resolve(Date.now() - time)
@@ -88,10 +88,8 @@ class Jssdk extends JssdkBase {
   /**
    * @description 获取图片
    */
-  pickerPhoto(count = 1) {
-    if (this.native) {
-      return this.callHandler<Image[]>('pickerPhoto', JSON.stringify({ count }))
-    }
+  pickerPhoto(params?: PickerPhotoParams) {
+    if (this.native) return this.callHandler<Image[]>('pickerPhoto', JSON.stringify(params ?? {}))
     return new Promise<Image[]>((_, reject) => {
       reject()
     })
@@ -100,10 +98,8 @@ class Jssdk extends JssdkBase {
   /**
    * @description 拍照
    */
-  openCamera() {
-    if (this.native) {
-      return this.callHandler<Image | undefined>('openCamera')
-    }
+  openCamera(params?: CameraPhotoParams) {
+    if (this.native) return this.callHandler<Image | undefined>('openCamera', JSON.stringify(params ?? {}))
     return new Promise<Image | undefined>((_, reject) => {
       reject()
     })
@@ -172,6 +168,6 @@ class Jssdk extends JssdkBase {
   }
 }
 
-const jssdk = new Jssdk()
+// const jssdk = new Jssdk()
 
-export default jssdk
+// export default jssdk

@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
-import jssdk from './jssdk/index'
+import jssdk from './initJssdk'
 import router from './router'
 
 async function main() {
