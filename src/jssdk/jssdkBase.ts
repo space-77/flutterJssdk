@@ -23,6 +23,10 @@ type MaxRockyEvent = {
 }
 
 export type JssdkBaseOprion = {
+  /**
+   * @description 拦截用户退出应用事件
+   * @returns { Boolean } 返回退出应用结果，true 退出，false 取消
+   */
   onWillPop?: () => boolean
 }
 
