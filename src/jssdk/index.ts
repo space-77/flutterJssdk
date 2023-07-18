@@ -1,5 +1,5 @@
 import JssdkBase, { maxrockyWebView } from './jssdkBase'
-import type { CameraPhotoParams, Image, PickerPhotoParams } from './types'
+import type { CameraPhotoParams, ConnectivityInfo, Image, NetworkInfo, PickerPhotoParams, ToastToast } from './types'
 export default class Jssdk extends JssdkBase {
   get isNative() {
     return this.native
@@ -18,13 +18,8 @@ export default class Jssdk extends JssdkBase {
   }
 
   reload() {
+    if (this.native) return this.callHandler<void>('reload')
     location.reload()
-    // if (this.native) {
-    //   console.log('123');
-    //   return this.callHandler<void>('reload')
-    // } else {
-    //   location.reload()
-    // }
   }
 
   /**
@@ -33,9 +28,7 @@ export default class Jssdk extends JssdkBase {
    * @description 设置LocalStroge
    */
   setLocalStorage(key: string, value: any) {
-    if (this.native) {
-      return this.callHandler<void>('setLocalStorage', JSON.stringify({ key, value }))
-    }
+    if (this.native) return this.callHandler<void>('setLocalStorage', JSON.stringify({ key, value }))
     return new Promise<void>(resolve => {
       resolve(localStorage.setItem(key, value))
     })
@@ -116,33 +109,6 @@ export default class Jssdk extends JssdkBase {
   }
 
   /**
-   * @description 开始录音
-   */
-  startRecordAudio(duration = 60) {
-    if (this.native) {
-      return this.callHandler('recordAudio', duration)
-    }
-    return new Promise((_, reject) => {
-      reject()
-    })
-  }
-
-  /**
-   * @description 获取 ClientId， 华润做消息推送（公司那边肯能是自己推送）
-   */
-  getClientId() {
-    if (this.native) {
-      // TODO 待完成
-      return new Promise((_, reject) => {
-        reject('TODO')
-      })
-    }
-    return new Promise((_, reject) => {
-      reject()
-    })
-  }
-
-  /**
    * @description 获取设备信息，那个型号，什么系统，可用屏幕、刘海屏
    */
   getDeviceInfo() {
@@ -153,21 +119,33 @@ export default class Jssdk extends JssdkBase {
   }
 
   /**
+   * @description toast
+   */
+  toast(params: ToastToast | string) {
+    const p: ToastToast = typeof params === 'string' ? { msg: params } : params
+    if (this.native) return this.callHandler('toast', JSON.stringify(p))
+    return new Promise((_, reject) => {
+      reject('is not native')
+    })
+  }
+
+  /**
    * @description 获取网络状态
    */
-  getNetworkType() {
-    if (this.native) {
-      // TODO 待完成
-      return new Promise((_, reject) => {
-        reject('TODO')
-      })
-    }
-    return new Promise(resolve => {
-      resolve(navigator.onLine ? 'wifi' : 'unknown')
+  getConnectivity() {
+    if (this.native) return this.callHandler<ConnectivityInfo>('connectivity')
+    return new Promise<ConnectivityInfo>(resolve => {
+      resolve(navigator.onLine ? 'wifi' : 'none')
+    })
+  }
+
+  /**
+   * @description 获取网络信息，ipv4 ipv6 网关 等
+   */
+  getNetworkInfo() {
+    if (this.native) return this.callHandler<NetworkInfo>('networkInfo')
+    return new Promise<NetworkInfo>((_, reject) => {
+      reject()
     })
   }
 }
-
-// const jssdk = new Jssdk()
-
-// export default jssdk

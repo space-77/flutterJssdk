@@ -93,6 +93,28 @@ async function navPop() {
     console.error(error)
   }
 }
+
+async function toast() {
+  jssdk.toast({ msg: '提示信息' })
+}
+
+async function getNetworkInfo() {
+  try {
+    const info = await jssdk.getNetworkInfo()
+    console.log(JSON.stringify(info))
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function getConnectivity() {
+  try {
+    const info = await jssdk.getConnectivity()
+    console.log(JSON.stringify(info))
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -107,6 +129,9 @@ async function navPop() {
     <button type="button" @click="pickerPhoto">获取图片</button>
     <button type="button" @click="openCamera">开打相机</button>
     <button type="button" @click="navPop">原生返回</button>
+    <button type="button" @click="toast">toast</button>
+    <button type="button" @click="getNetworkInfo">网络信息</button>
+    <button type="button" @click="getConnectivity">网络情况</button>
   </div>
 
   <div class="image-box" v-if="images.length > 0">

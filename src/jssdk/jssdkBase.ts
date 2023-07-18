@@ -1,16 +1,17 @@
 type MethodsName =
+  | 'toast'
   | 'navPop'
-  | 'deviceInfo'
   | 'reload'
+  | 'qrcode'
+  | 'deviceInfo'
+  | 'networkInfo'
+  | 'openCamera'
+  | 'pickerPhoto'
+  | 'connectivity'
   | 'setLocalStorage'
   | 'getLocalStorage'
   | 'removeLocalStroge'
   | 'clearLocalStroge'
-  | 'qrcode'
-  | 'pickerPhoto'
-  | 'openCamera'
-  | 'recordAudio'
-  | 'recordAudio'
 
 type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
 type TEventList = Omit<TOnReadyFuns, 'time'>

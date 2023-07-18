@@ -7,7 +7,7 @@ let exitTimer: number | undefined = undefined
 const option: JssdkBaseOprion = {
   onWillPop() {
     if (exitTimer === undefined) {
-      console.log('再点一次退出')
+      jsskd.toast('再点一次退出')
       exitTimer = setTimeout(() => {
         clearTimeout(exitTimer)
         exitTimer = undefined

@@ -74,3 +74,53 @@ export type CameraPhotoParams = {
    */
   maximumRecordingDuration?: boolean
 }
+
+export type ToastToast = {
+  /**
+   * @description 信息
+   */
+  msg: string
+
+  /**
+   * @default 'bottom'
+   * @description 位置信息
+   */
+  position?:
+    | 'top'
+    | 'topLeft'
+    | 'topRight'
+    | 'bottom'
+    | 'bottomLeft'
+    | 'bottomRight'
+    | 'center'
+    | 'centerLeft'
+    | 'centerRight'
+
+  /**
+   * @default 16
+   * @description 文字大小
+   */
+  fontSize?: number
+
+  /**
+   * @description 文字颜色
+   */
+  textColor?: string
+
+  /**
+   * @description 背景色
+   */
+  backgroundColor?: string
+}
+
+export type NetworkInfo = {
+  IP?: string
+  IPv6?: string
+  name?: string
+  BSSID?: string
+  submask?: string
+  broadcast?: string
+  gatewayIP?: string
+}
+
+export type ConnectivityInfo = 'mobile' | 'wifi' | 'ethernet' | 'vpn' | 'bluetooth' | 'other' | 'none'
