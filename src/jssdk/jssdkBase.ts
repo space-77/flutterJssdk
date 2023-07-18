@@ -12,6 +12,7 @@ type MethodsName =
   | 'getLocalStorage'
   | 'removeLocalStroge'
   | 'clearLocalStroge'
+  | 'setNavigationBarColor'
 
 type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
 type TEventList = Omit<TOnReadyFuns, 'time'>

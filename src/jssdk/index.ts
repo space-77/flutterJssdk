@@ -148,4 +148,14 @@ export default class Jssdk extends JssdkBase {
       reject()
     })
   }
+
+  /**
+   * @description 设置导航颜色
+   */
+  setNavigationBarColor(type: 'dark' | 'light') {
+    if (this.native) return this.callHandler('setNavigationBarColor', type)
+    return new Promise((_, reject) => {
+      reject()
+    })
+  }
 }

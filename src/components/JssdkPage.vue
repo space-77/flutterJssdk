@@ -4,6 +4,7 @@ import jssdk from '@/initJssdk'
 import type { Image } from '@/jssdk/types'
 
 const images = ref<Image[]>([])
+const barColor = ref<'dark' | 'light'>('dark')
 
 async function getDeviceInfo() {
   try {
@@ -115,6 +116,15 @@ async function getConnectivity() {
     console.error(error)
   }
 }
+
+async function setNavigationBarColor() {
+  try {
+    barColor.value = barColor.value === 'dark' ? 'light' : 'dark'
+    jssdk.setNavigationBarColor(barColor.value)
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -132,6 +142,7 @@ async function getConnectivity() {
     <button type="button" @click="toast">toast</button>
     <button type="button" @click="getNetworkInfo">网络信息</button>
     <button type="button" @click="getConnectivity">网络情况</button>
+    <button type="button" @click="setNavigationBarColor">改变状态颜色</button>
   </div>
 
   <div class="image-box" v-if="images.length > 0">
