@@ -1,6 +1,22 @@
-import JssdkBase, { maxrockyWebView } from './jssdkBase'
-import type { CameraPhotoParams, ConnectivityInfo, Image, NetworkInfo, PickerPhotoParams, ToastToast } from './types'
+import urlJoin from 'url-join'
+import JssdkBase, { JssdkOprion, maxrockyWebView } from './jssdkBase'
+import type {
+  BaseRequest,
+  CameraPhotoParams,
+  ConnectivityInfo,
+  HttpRequest,
+  HttpRequestConfig,
+  Image,
+  LocalNotification,
+  NetworkInfo,
+  PickerPhotoParams,
+  ToastToast
+} from './types'
 export default class Jssdk extends JssdkBase {
+  // constructor(option?: JssdkOprion) {
+  //   super(option)
+  // }
+
   get isNative() {
     return this.native
   }
@@ -156,6 +172,61 @@ export default class Jssdk extends JssdkBase {
     if (this.native) return this.callHandler('setNavigationBarColor', type)
     return new Promise((_, reject) => {
       reject()
+    })
+  }
+
+  /**
+   * @description 原生提供网络请求，没有跨域
+   */
+  async httpRequest<T>(config: HttpRequestConfig): Promise<HttpRequest<T>> {
+    if (this.native) {
+      const res = await this.callHandler('httpRequest', JSON.stringify(config))
+      const data = JSON.parse(res) as HttpRequest<T>
+      data.config = config
+      if (data.status >= 400) return Promise.reject(data)
+      return data
+    }
+    return new Promise<HttpRequest<T>>((_, reject) => {
+      reject()
+    })
+  }
+
+  /**
+   * @description 创建请求方法，类似 axios.created()
+   */
+  createHttpRequest<T>(baseConfig: BaseRequest = {}) {
+    const { baseUrl, timeout, headers = {} } = baseConfig
+    return <D = T>(config: HttpRequestConfig) => {
+      let url = config.url
+      if (!this.isLink(url) && baseUrl) url = urlJoin(baseUrl, url)
+
+      const cof: HttpRequestConfig = {
+        ...config,
+        url,
+        timeout: config.timeout || timeout,
+        headers: { ...headers, ...(config.headers ?? {}) }
+      }
+      return this.httpRequest<D>(cof)
+    }
+  }
+
+  /**
+   * @description 本地通知 / 任务栏通知
+   */
+  localNotification(config: LocalNotification) {
+    if (this.isNative) return this.callHandler('localNotification', JSON.stringify(config))
+    return new Promise(resolve => {
+      resolve('')
+    })
+  }
+
+  /**
+   * @description 文件下载
+   */
+  fileDownload(url: string) {
+    if (this.isNative) return this.callHandler('fileDownload', url)
+    return new Promise(resolve => {
+      resolve('')
     })
   }
 }

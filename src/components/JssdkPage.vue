@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import axios from 'axios'
 import { ref } from 'vue'
-import jssdk from '@/initJssdk'
+import jssdk, { request } from '@/initJssdk'
 import type { Image } from '@/jssdk/types'
 
 const images = ref<Image[]>([])
@@ -125,6 +126,41 @@ async function setNavigationBarColor() {
     console.error(error)
   }
 }
+
+async function httpRequest() {
+  try {
+    // const http = await axios.get('')
+    // const res = await jssdk.httpRequest({ url: '', method: 'get' })
+    // console.log(res)
+    const data = await request<string>({
+      url: '/region/overview/overallView',
+      params: { region: '00000001', date: '2023-07-20' }
+    })
+    console.log(JSON.stringify(data))
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function localNotification() {
+  try {
+    await jssdk.localNotification({
+      title: '通知：title',
+      body: '通知：body',
+      payload: JSON.stringify({ id: 1, path: '../../api.api' })
+    })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function fileDownload() {
+  try {
+    await jssdk.fileDownload('https://baidu.com')
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -143,6 +179,9 @@ async function setNavigationBarColor() {
     <button type="button" @click="getNetworkInfo">网络信息</button>
     <button type="button" @click="getConnectivity">网络情况</button>
     <button type="button" @click="setNavigationBarColor">改变状态颜色</button>
+    <button type="button" @click="httpRequest">网络请求</button>
+    <button type="button" @click="localNotification">本都通知</button>
+    <button type="button" @click="fileDownload">文件下载</button>
   </div>
 
   <div class="image-box" v-if="images.length > 0">

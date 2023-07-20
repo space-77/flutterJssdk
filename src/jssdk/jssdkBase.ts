@@ -4,14 +4,17 @@ type MethodsName =
   | 'reload'
   | 'qrcode'
   | 'deviceInfo'
+  | 'httpRequest'
   | 'networkInfo'
   | 'openCamera'
   | 'pickerPhoto'
   | 'connectivity'
+  | 'fileDownload'
   | 'setLocalStorage'
   | 'getLocalStorage'
   | 'removeLocalStroge'
   | 'clearLocalStroge'
+  | 'localNotification'
   | 'setNavigationBarColor'
 
 type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
@@ -24,12 +27,20 @@ type MaxRockyEvent = {
   sessionId: number
 }
 
-export type JssdkBaseOprion = {
+type onDidReceiveNotificationRes = { type: 'selectedNotification' | 'selectedNotificationAction'; payload?: string }
+
+export type JssdkOprion = {
   /**
    * @description 拦截用户退出应用事件
    * @returns { Boolean } 返回退出应用结果，true 退出，false 取消
    */
   onWillPop?: () => boolean
+
+  /**
+   * @param res
+   * @description 点击了本地通知回调
+   */
+  onDidReceiveNotificationResponse?: (res: onDidReceiveNotificationRes) => void
 }
 
 export const webviewName = 'flutter_inappwebview'
@@ -45,7 +56,7 @@ export default class JssdkBase {
   protected eventList = new Map<number, TEventList>()
   protected onReadyFuns: TOnReadyFuns[] = []
 
-  constructor({ onWillPop }: JssdkBaseOprion = {}) {
+  constructor({ onWillPop, onDidReceiveNotificationResponse }: JssdkOprion = {}) {
     if (maxrockyWebView.$jssdk) {
       console.error('jssdk has already been built, please do not repeat the construction')
       return maxrockyWebView.$jssdk
@@ -54,6 +65,7 @@ export default class JssdkBase {
     this.init()
     this.addEventListener()
     maxrockyWebView.onWillPop = onWillPop?.bind(this)
+    maxrockyWebView.onDidReceiveNotificationResponse = onDidReceiveNotificationResponse?.bind(this)
   }
 
   protected init() {
@@ -94,5 +106,9 @@ export default class JssdkBase {
       // 通知原生事件
       maxrockyWebView?.callHandler('postMessage', JSON.stringify({ sessionId, methodName, params }))
     })
+  }
+
+  protected isLink(url: string) {
+    return /https?:\/\//.test(url) || (this.baseScheme && url.startsWith(this.baseScheme))
   }
 }

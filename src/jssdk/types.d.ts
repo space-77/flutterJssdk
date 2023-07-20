@@ -124,3 +124,52 @@ export type NetworkInfo = {
 }
 
 export type ConnectivityInfo = 'mobile' | 'wifi' | 'ethernet' | 'vpn' | 'bluetooth' | 'other' | 'none'
+
+export type BaseRequest = {
+  baseUrl?: string
+  timeout?: number
+  headers?: Record<string, any>
+}
+
+export type Method =
+  | 'get'
+  | 'GET'
+  | 'delete'
+  | 'DELETE'
+  | 'head'
+  | 'HEAD'
+  | 'options'
+  | 'OPTIONS'
+  | 'post'
+  | 'POST'
+  | 'put'
+  | 'PUT'
+  | 'patch'
+  | 'PATCH'
+  | 'purge'
+  | 'PURGE'
+  | 'link'
+  | 'LINK'
+  | 'unlink'
+  | 'UNLINK'
+
+export type HttpRequestConfig = {
+  url: string
+  data?: string
+  method?: Method
+  params?: any
+  timeout?: number
+  headers?: Record<string, any>
+}
+
+export type HttpRequest<T = any> = {
+  data: T
+  status: number
+  config: HttpRequestConfig
+}
+
+export type LocalNotification = {
+  title: string
+  body: string
+  payload?: string
+}
