@@ -229,4 +229,14 @@ export default class Jssdk extends JssdkBase {
       resolve('')
     })
   }
+
+  /**
+   * @description 文件上传
+   */
+  fileUpload(url: string) {
+    if (this.isNative) return this.callHandler('fileUpload', url)
+    return new Promise(resolve => {
+      resolve('')
+    })
+  }
 }

@@ -9,6 +9,7 @@ type MethodsName =
   | 'openCamera'
   | 'pickerPhoto'
   | 'connectivity'
+  | 'fileUpload'
   | 'fileDownload'
   | 'setLocalStorage'
   | 'getLocalStorage'
@@ -57,6 +58,7 @@ export default class JssdkBase {
   protected onReadyFuns: TOnReadyFuns[] = []
 
   constructor({ onWillPop, onDidReceiveNotificationResponse }: JssdkOprion = {}) {
+    if (!maxrockyWebView) return
     if (maxrockyWebView.$jssdk) {
       console.error('jssdk has already been built, please do not repeat the construction')
       return maxrockyWebView.$jssdk

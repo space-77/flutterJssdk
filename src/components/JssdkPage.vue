@@ -161,6 +161,31 @@ async function fileDownload() {
     console.error(error)
   }
 }
+
+async function fileUpload() {
+  try {
+    // const blob = new Blob(['文件测试'])
+    // const url = window.URL.createObjectURL(blob)
+    // console.log({ url })
+
+    // await jssdk.fileUpload(url)
+
+    const file = new File(['Hello', '\n World'], 'hello-world.txt', { type: 'text/plain' })
+    const formData = new FormData()
+    // Append the file to FormData
+    formData.append('file', file)
+
+    const f = await fetch('http://192.168.8.122:8080/file/upload', {
+      method: 'post',
+      body: formData,
+      headers: { 'content-type': 'multipart/form-data' }
+    })
+    const res = await f.json()
+    console.log(res)
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -182,6 +207,7 @@ async function fileDownload() {
     <button type="button" @click="httpRequest">网络请求</button>
     <button type="button" @click="localNotification">本都通知</button>
     <button type="button" @click="fileDownload">文件下载</button>
+    <button type="button" @click="fileUpload">文件上传</button>
   </div>
 
   <div class="image-box" v-if="images.length > 0">
