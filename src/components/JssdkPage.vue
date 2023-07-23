@@ -174,14 +174,29 @@ async function fileUpload() {
     const formData = new FormData()
     // Append the file to FormData
     formData.append('file', file)
+    // const ab = new ArrayBuffer()
+    // window.postMessage('maxrocky', { transfer: [readAsArrayBuffer(file)] })
 
-    const f = await fetch('http://192.168.8.122:8080/file/upload', {
-      method: 'post',
-      body: formData,
-      headers: { 'content-type': 'multipart/form-data' }
-    })
-    const res = await f.json()
-    console.log(res)
+    let blob = new Blob(['文件测试'])
+    const bf = await blob.arrayBuffer()
+    window.postMessage('maxrocky', { transfer: [bf] })
+
+
+    // window.flutter_inappwebview.
+    // let reader = new FileReader()
+    // reader.onload = function (result) {
+    //   console.log(result)
+
+    // }
+    // reader.readAsArrayBuffer(blob)
+
+    // const f = await fetch('http://192.168.8.122:8080/file/upload', {
+    //   method: 'post',
+    //   body: formData,
+    //   headers: { 'content-type': 'multipart/form-data' }
+    // })
+    // const res = await f.json()
+    // console.log(res)
   } catch (error) {
     console.error(error)
   }
