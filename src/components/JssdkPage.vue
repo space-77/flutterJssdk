@@ -177,10 +177,13 @@ async function fileUpload() {
     // const ab = new ArrayBuffer()
     // window.postMessage('maxrocky', { transfer: [readAsArrayBuffer(file)] })
 
-    let blob = new Blob(['文件测试'])
-    const bf = await blob.arrayBuffer()
-    window.postMessage('maxrocky', { transfer: [bf] })
+    // const blob = new Blob(['文件测试'])
+    // const bf = await blob.arrayBuffer()
+    // console.log(bf)
+    // console.log(bf.byteLength)
 
+    // // window.postMessage('maxrocky', { transfer: [bf] })
+    // window.flutter_inappwebview?.callHandler('upload', [bf])
 
     // window.flutter_inappwebview.
     // let reader = new FileReader()
@@ -190,13 +193,13 @@ async function fileUpload() {
     // }
     // reader.readAsArrayBuffer(blob)
 
-    // const f = await fetch('http://192.168.8.122:8080/file/upload', {
-    //   method: 'post',
-    //   body: formData,
-    //   headers: { 'content-type': 'multipart/form-data' }
-    // })
-    // const res = await f.json()
-    // console.log(res)
+    const f = await fetch('/file/upload', {
+      method: 'post',
+      body: file,
+      headers: { 'content-type': 'multipart/form-data' }
+    })
+    const res = await f.json()
+    console.log(res)
   } catch (error) {
     console.error(error)
   }
