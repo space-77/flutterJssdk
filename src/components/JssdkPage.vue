@@ -204,6 +204,23 @@ async function fileUpload() {
     console.error(error)
   }
 }
+
+async function setClipboard() {
+  try {
+    await jssdk.setClipboard('https://baidu.com')
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function getClipboard() {
+  try {
+    const text = await jssdk.getClipboard()
+    console.log(text)
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -226,6 +243,8 @@ async function fileUpload() {
     <button type="button" @click="localNotification">本都通知</button>
     <button type="button" @click="fileDownload">文件下载</button>
     <button type="button" @click="fileUpload">文件上传</button>
+    <button type="button" @click="setClipboard">复制内容到粘贴板</button>
+    <button type="button" @click="getClipboard">获取粘贴板内容</button>
   </div>
 
   <div class="image-box" v-if="images.length > 0">

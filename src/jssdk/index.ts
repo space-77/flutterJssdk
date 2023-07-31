@@ -239,4 +239,24 @@ export default class Jssdk extends JssdkBase {
       resolve('')
     })
   }
+
+  /**
+   * @description 复制内容到粘贴板
+   */
+  setClipboard(text: string) {
+    if (this.isNative) return this.callHandler('setClipboard', text)
+    return new Promise(resolve => {
+      resolve('')
+    })
+  }
+
+  /**
+   * @description 获取粘贴板内容
+   */
+  getClipboard() {
+    if (this.isNative) return this.callHandler('getClipboard')
+    return new Promise(resolve => {
+      resolve('')
+    })
+  }
 }

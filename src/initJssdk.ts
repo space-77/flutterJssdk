@@ -1,5 +1,5 @@
 import Jssdk from './jssdk/index'
-import { JssdkOprion } from './jssdk/jssdkBase'
+import { JssdkOprion, AppLifecycleState } from './jssdk/jssdkBase'
 
 const exitTime = 2 * 1000 // 两秒内两次返回退出应用
 let exitTimer: number | undefined = undefined
@@ -20,6 +20,22 @@ const option: JssdkOprion = {
   },
   onDidReceiveNotificationResponse({ payload, type }) {
     console.log(payload, type)
+  },
+  changeAppLifecycleState(state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        console.log('应用进入前台')
+        break
+      case AppLifecycleState.inactive:
+        console.log('应用处于闲置状态')
+        break
+      case AppLifecycleState.detached:
+        console.log('当前页面即将退出')
+        break
+      case AppLifecycleState.paused:
+        console.log('应用处于后台')
+        break
+    }
   }
 }
 

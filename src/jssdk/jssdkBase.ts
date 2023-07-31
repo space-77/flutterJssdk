@@ -8,8 +8,10 @@ type MethodsName =
   | 'networkInfo'
   | 'openCamera'
   | 'pickerPhoto'
-  | 'connectivity'
   | 'fileUpload'
+  | 'connectivity'
+  | 'setClipboard'
+  | 'getClipboard'
   | 'fileDownload'
   | 'setLocalStorage'
   | 'getLocalStorage'
@@ -18,6 +20,7 @@ type MethodsName =
   | 'localNotification'
   | 'setNavigationBarColor'
 
+// type AppLifecycleState = 'resumed' | 'inactive' | 'detached' | 'paused'
 type TOnReadyFuns = { resolve: Function; reject: Function; time: number }
 type TEventList = Omit<TOnReadyFuns, 'time'>
 
@@ -29,6 +32,28 @@ type MaxRockyEvent = {
 }
 
 type onDidReceiveNotificationRes = { type: 'selectedNotification' | 'selectedNotificationAction'; payload?: string }
+
+export enum AppLifecycleState {
+  /**
+   * @description 应用进入前台
+   */
+  resumed,
+
+  /**
+   * @description 应用处于闲置状态, 这种状态的应用应该假设他们可能在任何时候暂停 切换到后台会触发
+   */
+  inactive,
+
+  /**
+   * @description 当前页面即将退出
+   */
+  detached,
+
+  /**
+   * @description 应用处于不可见状态 （应用进入前后）
+   */
+  paused
+}
 
 export type JssdkOprion = {
   /**
@@ -42,6 +67,12 @@ export type JssdkOprion = {
    * @description 点击了本地通知回调
    */
   onDidReceiveNotificationResponse?: (res: onDidReceiveNotificationRes) => void
+
+  /**
+   * @param res
+   * @description 监听app进入前后台事件
+   */
+  changeAppLifecycleState?: (state: AppLifecycleState) => void
 }
 
 export const webviewName = 'flutter_inappwebview'
@@ -57,7 +88,7 @@ export default class JssdkBase {
   protected eventList = new Map<number, TEventList>()
   protected onReadyFuns: TOnReadyFuns[] = []
 
-  constructor({ onWillPop, onDidReceiveNotificationResponse }: JssdkOprion = {}) {
+  constructor({ onWillPop, onDidReceiveNotificationResponse, changeAppLifecycleState }: JssdkOprion = {}) {
     if (!maxrockyWebView) return
     if (maxrockyWebView.$jssdk) {
       console.error('jssdk has already been built, please do not repeat the construction')
@@ -68,6 +99,27 @@ export default class JssdkBase {
     this.addEventListener()
     maxrockyWebView.onWillPop = onWillPop?.bind(this)
     maxrockyWebView.onDidReceiveNotificationResponse = onDidReceiveNotificationResponse?.bind(this)
+    maxrockyWebView.changeAppLifecycleState = status => {
+      let type: AppLifecycleState
+      switch (status) {
+        // 'resumed' | 'inactive' | 'detached' | 'paused'
+        case 'resumed':
+          type = AppLifecycleState.resumed
+          break
+        case 'inactive':
+          type = AppLifecycleState.inactive
+          break
+        case 'detached':
+          type = AppLifecycleState.detached
+          break
+        case 'paused':
+          type = AppLifecycleState.paused
+          break
+      }
+      if (typeof changeAppLifecycleState === 'function') {
+        changeAppLifecycleState(type)
+      }
+    }
   }
 
   protected init() {
